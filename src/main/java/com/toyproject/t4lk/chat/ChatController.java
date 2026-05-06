@@ -28,7 +28,7 @@ public class ChatController {
     @GetMapping
     @Operation(
             summary = "채팅방 메시지 목록 조회",
-            description = "선택한 채팅방의 최근 메시지 목록을 조회합니다. 현재는 Swagger 테스트용 임시 데이터가 반환됩니다."
+            description = "선택한 채팅방의 최근 메시지 목록을 조회합니다. 현재는 JPA 엔티티로 저장된 데이터를 반환합니다."
     )
     @ApiResponse(
             responseCode = "200",
