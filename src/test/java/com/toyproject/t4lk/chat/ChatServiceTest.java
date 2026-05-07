@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -30,7 +31,7 @@ class ChatServiceTest {
         chatMessageRepository.deleteAll();
         roomRepository.deleteAll();
 
-        Room room = roomRepository.save(new Room("자유 대화실", "누구나 편하게 이야기하는 기본 방", true));
+        Room room = roomRepository.save(new Room(1, "자유 대화실", "누구나 편하게 이야기하는 기본 방", "평범함이 좋아", true));
         chatMessageRepository.save(new ChatMessage(room, "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요."));
         chatMessageRepository.save(new ChatMessage(room, "용감한 고양이_192.168", ChatMessageType.SYSTEM, "시스템 공지입니다."));
     }
@@ -49,5 +50,45 @@ class ChatServiceTest {
     @Test
     void getMessagesThrowsWhenRoomMissing() {
         assertThrows(RoomNotFoundException.class, () -> chatService.getMessages(999L));
+    }
+
+    @Test
+    void createMessagePersistsNewChat() {
+        Long roomId = roomRepository.findAll().get(0).getId();
+
+        var created = chatService.createMessage(roomId, new ChatMessageUpsertRequest(
+                "조용한 모뎀_192.168",
+                ChatMessageType.CHAT,
+                "새 메시지입니다."
+        ));
+
+        assertEquals("조용한 모뎀_192.168", created.senderName());
+        assertEquals(3, chatService.getMessages(roomId).size());
+    }
+
+    @Test
+    void updateMessageChangesPersistedContent() {
+        Long roomId = roomRepository.findAll().get(0).getId();
+        Long messageId = chatMessageRepository.findAllByRoom_IdAndIsDeletedFalseOrderByCreatedAtAsc(roomId).get(0).getId();
+
+        var updated = chatService.updateMessage(roomId, messageId, new ChatMessageUpsertRequest(
+                "명예로운 팬티_192.168",
+                ChatMessageType.SYSTEM,
+                "수정된 메시지입니다."
+        ));
+
+        assertEquals("SYSTEM", updated.messageType());
+        assertEquals("수정된 메시지입니다.", updated.content());
+    }
+
+    @Test
+    void deleteMessageMarksMessageDeleted() {
+        Long roomId = roomRepository.findAll().get(0).getId();
+        Long messageId = chatMessageRepository.findAllByRoom_IdAndIsDeletedFalseOrderByCreatedAtAsc(roomId).get(0).getId();
+
+        chatService.deleteMessage(roomId, messageId);
+
+        assertEquals(1, chatService.getMessages(roomId).size());
+        assertTrue(chatMessageRepository.findById(messageId).orElseThrow().isDeleted());
     }
 }

@@ -9,9 +9,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -48,5 +55,41 @@ public class ChatController {
     )
     public List<ChatMessageResponse> getMessages(@PathVariable Long roomId) {
         return chatService.getMessages(roomId);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "채팅 메시지 생성",
+            description = "선택한 채팅방에 새 메시지를 저장합니다."
+    )
+    public ChatMessageResponse createMessage(
+            @PathVariable Long roomId,
+            @Valid @RequestBody ChatMessageUpsertRequest request
+    ) {
+        return chatService.createMessage(roomId, request);
+    }
+
+    @PutMapping("/{messageId}")
+    @Operation(
+            summary = "채팅 메시지 수정",
+            description = "선택한 채팅방의 메시지를 수정합니다."
+    )
+    public ChatMessageResponse updateMessage(
+            @PathVariable Long roomId,
+            @PathVariable Long messageId,
+            @Valid @RequestBody ChatMessageUpsertRequest request
+    ) {
+        return chatService.updateMessage(roomId, messageId, request);
+    }
+
+    @DeleteMapping("/{messageId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "채팅 메시지 삭제",
+            description = "선택한 채팅방의 메시지를 소프트 삭제합니다."
+    )
+    public void deleteMessage(@PathVariable Long roomId, @PathVariable Long messageId) {
+        chatService.deleteMessage(roomId, messageId);
     }
 }

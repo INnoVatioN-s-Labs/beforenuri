@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
@@ -19,12 +19,42 @@ public class ChatService {
         this.roomService = roomService;
     }
 
+    @Transactional(readOnly = true)
     public List<ChatMessageResponse> getMessages(Long roomId) {
         Room room = roomService.getRoomEntity(roomId);
         return chatMessageRepository.findAllByRoom_IdAndIsDeletedFalseOrderByCreatedAtAsc(room.getId())
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public ChatMessageResponse createMessage(Long roomId, ChatMessageUpsertRequest request) {
+        Room room = roomService.getRoomEntity(roomId);
+        ChatMessage chatMessage = chatMessageRepository.save(new ChatMessage(
+                room,
+                request.senderName(),
+                request.messageType(),
+                request.content()
+        ));
+        return toResponse(chatMessage);
+    }
+
+    public ChatMessageResponse updateMessage(Long roomId, Long messageId, ChatMessageUpsertRequest request) {
+        roomService.getRoomEntity(roomId);
+        ChatMessage chatMessage = getMessageEntity(roomId, messageId);
+        chatMessage.update(request.senderName(), request.messageType(), request.content());
+        return toResponse(chatMessage);
+    }
+
+    public void deleteMessage(Long roomId, Long messageId) {
+        roomService.getRoomEntity(roomId);
+        ChatMessage chatMessage = getMessageEntity(roomId, messageId);
+        chatMessage.delete();
+    }
+
+    private ChatMessage getMessageEntity(Long roomId, Long messageId) {
+        return chatMessageRepository.findByIdAndRoom_IdAndIsDeletedFalse(messageId, roomId)
+                .orElseThrow(() -> new ChatMessageNotFoundException(roomId, messageId));
     }
 
     private ChatMessageResponse toResponse(ChatMessage chatMessage) {
