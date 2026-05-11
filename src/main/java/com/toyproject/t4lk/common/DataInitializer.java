@@ -84,15 +84,15 @@ public class DataInitializer {
             return;
         }
 
-        Room feelingTalk = seededRooms.get(1);
-        Room freeTalk = seededRooms.get(2);
-        Room gameTalk = seededRooms.get(46);
+        Long feelingTalkRoomId = seededRooms.get(1).getId();
+        Long freeTalkRoomId = seededRooms.get(2).getId();
+        Long gameTalkRoomId = seededRooms.get(46).getId();
 
         chatMessageRepository.saveAll(List.of(
-                new ChatMessage(feelingTalk, "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요. 반갑습니다."),
-                new ChatMessage(freeTalk, "용감한 고양이_192.168", ChatMessageType.CHAT, "여기 분위기 좋네요."),
-                new ChatMessage(gameTalk, "조용한 모뎀_192.168", ChatMessageType.CHAT, "게임 이야기 환영합니다."),
-                new ChatMessage(gameTalk, "날카로운 사용자_192.168", ChatMessageType.SYSTEM, "매너 있는 대화를 부탁드립니다.")
+                new ChatMessage(feelingTalkRoomId, "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요. 반갑습니다."),
+                new ChatMessage(freeTalkRoomId, "용감한 고양이_192.168", ChatMessageType.CHAT, "여기 분위기 좋네요."),
+                new ChatMessage(gameTalkRoomId, "조용한 모뎀_192.168", ChatMessageType.CHAT, "게임 이야기 환영합니다."),
+                new ChatMessage(gameTalkRoomId, "날카로운 사용자_192.168", ChatMessageType.SYSTEM, "매너 있는 대화를 부탁드립니다.")
         ));
     }
 

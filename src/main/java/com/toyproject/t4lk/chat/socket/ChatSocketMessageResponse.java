@@ -8,7 +8,7 @@ public record ChatSocketMessageResponse(
         @Schema(description = "이벤트 타입", example = "CHAT")
         String type,
         @Schema(description = "메시지 번호", example = "1001")
-        Long messageId,
+        String messageId,
         @Schema(description = "채팅방 번호", example = "1")
         Long roomId,
         @Schema(description = "표시할 발신자 이름", example = "명예로운 팬티_192.168")

@@ -77,7 +77,7 @@ public class ChatController {
     )
     public ChatMessageResponse updateMessage(
             @PathVariable Long roomId,
-            @PathVariable Long messageId,
+            @PathVariable String messageId,
             @Valid @RequestBody ChatMessageUpsertRequest request
     ) {
         return chatService.updateMessage(roomId, messageId, request);
@@ -89,7 +89,7 @@ public class ChatController {
             summary = "채팅 메시지 삭제",
             description = "선택한 채팅방의 메시지를 소프트 삭제합니다."
     )
-    public void deleteMessage(@PathVariable Long roomId, @PathVariable Long messageId) {
+    public void deleteMessage(@PathVariable Long roomId, @PathVariable String messageId) {
         chatService.deleteMessage(roomId, messageId);
     }
 }

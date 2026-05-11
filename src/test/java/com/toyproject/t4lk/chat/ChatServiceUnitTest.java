@@ -35,10 +35,10 @@ class ChatServiceUnitTest {
     @Test
     void getMessagesMapsRepositoryResults() {
         Room room = room(1L, 1, "자유 대화실");
-        ChatMessage first = message(100L, room, "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요.");
-        ChatMessage second = message(101L, room, "시스템", ChatMessageType.SYSTEM, "공지입니다.");
+        ChatMessage first = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요.");
+        ChatMessage second = message("101", room.getId(), "시스템", ChatMessageType.SYSTEM, "공지입니다.");
         when(roomService.getRoomEntity(1L)).thenReturn(room);
-        when(chatMessageRepository.findAllByRoom_IdAndIsDeletedFalseOrderByCreatedAtAsc(1L))
+        when(chatMessageRepository.findAllByRoomIdAndDeletedFalseOrderByCreatedAtAsc(1L))
                 .thenReturn(List.of(first, second));
 
         List<ChatMessageResponse> messages = chatService.getMessages(1L);
@@ -51,7 +51,7 @@ class ChatServiceUnitTest {
     @Test
     void createMessagePersistsAndReturnsResponse() {
         Room room = room(1L, 1, "자유 대화실");
-        ChatMessage saved = message(100L, room, "명예로운 팬티_192.168", ChatMessageType.CHAT, "실시간 메시지");
+        ChatMessage saved = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "실시간 메시지");
         when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.save(any(ChatMessage.class))).thenReturn(saved);
 
@@ -60,7 +60,7 @@ class ChatServiceUnitTest {
                 new ChatMessageUpsertRequest("명예로운 팬티_192.168", ChatMessageType.CHAT, "실시간 메시지")
         );
 
-        assertEquals(100L, created.id());
+        assertEquals("100", created.id());
         assertEquals("실시간 메시지", created.content());
         verify(chatMessageRepository).save(any(ChatMessage.class));
     }
@@ -68,13 +68,14 @@ class ChatServiceUnitTest {
     @Test
     void updateMessageMutatesExistingEntity() {
         Room room = room(1L, 1, "자유 대화실");
-        ChatMessage existing = message(100L, room, "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
+        ChatMessage existing = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
         when(roomService.getRoomEntity(1L)).thenReturn(room);
-        when(chatMessageRepository.findByIdAndRoom_IdAndIsDeletedFalse(100L, 1L)).thenReturn(Optional.of(existing));
+        when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("100", 1L)).thenReturn(Optional.of(existing));
+        when(chatMessageRepository.save(existing)).thenReturn(existing);
 
         ChatMessageResponse updated = chatService.updateMessage(
                 1L,
-                100L,
+                "100",
                 new ChatMessageUpsertRequest("용감한 고양이_192.168", ChatMessageType.SYSTEM, "수정된 메시지")
         );
 
@@ -87,12 +88,12 @@ class ChatServiceUnitTest {
     void updateMessageThrowsWhenMessageMissing() {
         Room room = room(1L, 1, "자유 대화실");
         when(roomService.getRoomEntity(1L)).thenReturn(room);
-        when(chatMessageRepository.findByIdAndRoom_IdAndIsDeletedFalse(999L, 1L)).thenReturn(Optional.empty());
+        when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("999", 1L)).thenReturn(Optional.empty());
 
         assertThrows(ChatMessageNotFoundException.class, () ->
                 chatService.updateMessage(
                         1L,
-                        999L,
+                        "999",
                         new ChatMessageUpsertRequest("용감한 고양이_192.168", ChatMessageType.CHAT, "수정")
                 ));
     }
@@ -100,11 +101,12 @@ class ChatServiceUnitTest {
     @Test
     void deleteMessageMarksEntityDeleted() {
         Room room = room(1L, 1, "자유 대화실");
-        ChatMessage existing = message(100L, room, "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
+        ChatMessage existing = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
         when(roomService.getRoomEntity(1L)).thenReturn(room);
-        when(chatMessageRepository.findByIdAndRoom_IdAndIsDeletedFalse(100L, 1L)).thenReturn(Optional.of(existing));
+        when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("100", 1L)).thenReturn(Optional.of(existing));
+        when(chatMessageRepository.save(existing)).thenReturn(existing);
 
-        chatService.deleteMessage(1L, 100L);
+        chatService.deleteMessage(1L, "100");
 
         assertTrue(existing.isDeleted());
     }
@@ -115,12 +117,12 @@ class ChatServiceUnitTest {
         return room;
     }
 
-    private ChatMessage message(Long id, Room room, String senderName, ChatMessageType type, String content) {
-        ChatMessage chatMessage = new ChatMessage(room, senderName, type, content);
+    private ChatMessage message(String id, Long roomId, String senderName, ChatMessageType type, String content) {
+        ChatMessage chatMessage = new ChatMessage(roomId, senderName, type, content);
         ReflectionTestUtils.setField(chatMessage, "id", id);
         ReflectionTestUtils.setField(chatMessage, "createdAt", LocalDateTime.of(2026, 5, 7, 19, 30));
         ReflectionTestUtils.setField(chatMessage, "updatedAt", LocalDateTime.of(2026, 5, 7, 19, 30));
-        ReflectionTestUtils.setField(chatMessage, "isDeleted", false);
+        ReflectionTestUtils.setField(chatMessage, "deleted", false);
         return chatMessage;
     }
 }

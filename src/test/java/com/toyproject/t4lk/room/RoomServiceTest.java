@@ -1,6 +1,4 @@
 package com.toyproject.t4lk.room;
-
-import com.toyproject.t4lk.chat.ChatMessageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +21,8 @@ class RoomServiceTest {
     @Autowired
     private RoomRepository roomRepository;
 
-    @Autowired
-    private ChatMessageRepository chatMessageRepository;
-
     @BeforeEach
     void setUp() {
-        chatMessageRepository.deleteAll();
         roomRepository.deleteAll();
 
         roomRepository.save(new Room(1, "자유 대화실", "누구나 편하게 이야기하는 기본 방", "평범함이 좋아", true));
