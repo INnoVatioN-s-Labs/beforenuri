@@ -61,6 +61,13 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
+    public void validateRoomExists(Long roomId) {
+        if (!roomRepository.existsByIdAndIsDeletedFalse(roomId)) {
+            throw new RoomNotFoundException(roomId);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public Room getRoomEntity(Long roomId) {
         return roomRepository.findByIdAndIsDeletedFalse(roomId)
                 .orElseThrow(() -> new RoomNotFoundException(roomId));

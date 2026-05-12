@@ -1,12 +1,17 @@
 package com.toyproject.t4lk.chat;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "chat_messages")
+@CompoundIndex(name = "room_active_created_idx", def = "{'roomId': 1, 'deleted': 1, 'createdAt': 1}")
 public class ChatMessage {
+
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
     @Id
     private String id;
@@ -23,7 +28,7 @@ public class ChatMessage {
     }
 
     public ChatMessage(Long roomId, String senderName, ChatMessageType messageType, String content) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(KOREA_ZONE);
         this.roomId = roomId;
         this.senderName = senderName;
         this.messageType = messageType;
@@ -69,11 +74,11 @@ public class ChatMessage {
         this.senderName = senderName;
         this.messageType = messageType;
         this.content = content;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(KOREA_ZONE);
     }
 
     public void delete() {
         this.deleted = true;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now(KOREA_ZONE);
     }
 }

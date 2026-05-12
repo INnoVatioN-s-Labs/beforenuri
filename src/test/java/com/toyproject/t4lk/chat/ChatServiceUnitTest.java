@@ -37,7 +37,6 @@ class ChatServiceUnitTest {
         Room room = room(1L, 1, "자유 대화실");
         ChatMessage first = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요.");
         ChatMessage second = message("101", room.getId(), "시스템", ChatMessageType.SYSTEM, "공지입니다.");
-        when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.findAllByRoomIdAndDeletedFalseOrderByCreatedAtAsc(1L))
                 .thenReturn(List.of(first, second));
 
@@ -52,7 +51,6 @@ class ChatServiceUnitTest {
     void createMessagePersistsAndReturnsResponse() {
         Room room = room(1L, 1, "자유 대화실");
         ChatMessage saved = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "실시간 메시지");
-        when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.save(any(ChatMessage.class))).thenReturn(saved);
 
         ChatMessageResponse created = chatService.createMessage(
@@ -69,7 +67,6 @@ class ChatServiceUnitTest {
     void updateMessageMutatesExistingEntity() {
         Room room = room(1L, 1, "자유 대화실");
         ChatMessage existing = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
-        when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("100", 1L)).thenReturn(Optional.of(existing));
         when(chatMessageRepository.save(existing)).thenReturn(existing);
 
@@ -86,8 +83,6 @@ class ChatServiceUnitTest {
 
     @Test
     void updateMessageThrowsWhenMessageMissing() {
-        Room room = room(1L, 1, "자유 대화실");
-        when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("999", 1L)).thenReturn(Optional.empty());
 
         assertThrows(ChatMessageNotFoundException.class, () ->
@@ -102,7 +97,6 @@ class ChatServiceUnitTest {
     void deleteMessageMarksEntityDeleted() {
         Room room = room(1L, 1, "자유 대화실");
         ChatMessage existing = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "기존 메시지");
-        when(roomService.getRoomEntity(1L)).thenReturn(room);
         when(chatMessageRepository.findByIdAndRoomIdAndDeletedFalse("100", 1L)).thenReturn(Optional.of(existing));
         when(chatMessageRepository.save(existing)).thenReturn(existing);
 

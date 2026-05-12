@@ -3,6 +3,7 @@ package com.toyproject.t4lk.common;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.toyproject.t4lk.chat.ChatMessage;
@@ -75,7 +76,7 @@ public class DataInitializer {
     private Optional<Room> findLegacyRoom(Map<String, Room> roomByTitle, List<String> legacyTitles) {
         return legacyTitles.stream()
                 .map(roomByTitle::get)
-                .filter(room -> room != null)
+                .filter(Objects::nonNull)
                 .findFirst();
     }
 
