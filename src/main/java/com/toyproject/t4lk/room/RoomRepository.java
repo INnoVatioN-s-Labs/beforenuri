@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-    List<Room> findAllByIsDeletedFalseOrderByIdAsc();
+    List<Room> findAllByIsDeletedFalseOrderByCodeAsc();
 
     Optional<Room> findByIdAndIsDeletedFalse(Long id);
+
+    Optional<Room> findByCodeAndIsDeletedFalse(Integer code);
+
+    boolean existsByIdAndIsDeletedFalse(Long id);
 }

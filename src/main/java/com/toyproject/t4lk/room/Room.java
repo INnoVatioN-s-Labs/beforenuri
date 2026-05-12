@@ -16,11 +16,17 @@ public class Room extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private Integer code;
+
     @Column(nullable = false, length = 100)
     private String title;
 
     @Column(nullable = false, length = 255)
     private String description;
+
+    @Column(nullable = false, length = 60)
+    private String category;
 
     @Column(nullable = false)
     private boolean active;
@@ -28,14 +34,20 @@ public class Room extends BaseEntity {
     protected Room() {
     }
 
-    public Room(String title, String description, boolean active) {
+    public Room(Integer code, String title, String description, String category, boolean active) {
+        this.code = code;
         this.title = title;
         this.description = description;
+        this.category = category;
         this.active = active;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public Integer getCode() {
+        return code;
     }
 
     public String getTitle() {
@@ -46,7 +58,19 @@ public class Room extends BaseEntity {
         return description;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
     public boolean isActive() {
         return active;
+    }
+
+    public void update(Integer code, String title, String description, String category, boolean active) {
+        this.code = code;
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.active = active;
     }
 }
