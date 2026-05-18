@@ -18,6 +18,9 @@ jobs:
 
       - name: Save Docker image
         run: docker save t4lk:latest -o t4lk-image.tar
+        
+      - name: Fix image archive permissions
+        run: chmod 644 t4lk-image.tar
 
       - name: Copy image to EC2
         uses: appleboy/scp-action@v0.1.7
