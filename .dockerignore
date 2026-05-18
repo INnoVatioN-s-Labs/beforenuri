@@ -1,0 +1,13 @@
+.git
+.github
+.gradle
+build
+out
+.idea
+.vscode
+*.log
+.env
+.env.local
+Dockerfile*
+README*
+HELP.md

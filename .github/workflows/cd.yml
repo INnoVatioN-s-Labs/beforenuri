@@ -1,0 +1,57 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build deployment image
+        run: docker build -t t4lk:latest .
+
+      - name: Save Docker image
+        run: docker save t4lk:latest -o t4lk-image.tar
+
+      - name: Copy image to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: t4lk-image.tar
+          target: /home/${{ secrets.EC2_USER }}/t4lk-deploy
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,MONGODB_URI
+          script: |
+            set -eu
+            mkdir -p ~/t4lk-deploy
+            cd ~/t4lk-deploy
+            docker load -i t4lk-image.tar
+            cat > .env <<EOF
+            DB_URL=${DB_URL}
+            DB_USERNAME=${DB_USERNAME}
+            DB_PASSWORD=${DB_PASSWORD}
+            MONGODB_URI=${MONGODB_URI}
+            EOF
+            docker rm -f t4lk || true
+            docker run -d --name t4lk --restart unless-stopped --env-file .env -p 8080:8080 t4lk:latest

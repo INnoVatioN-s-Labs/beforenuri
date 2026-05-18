@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: t4lk
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+  flyway:
+    enabled: true
+
+app:
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173}
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
