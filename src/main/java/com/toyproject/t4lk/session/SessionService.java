@@ -20,12 +20,13 @@ public class SessionService {
         this.anonymousSessionRepository = anonymousSessionRepository;
     }
 
-    public AnonymousSessionResponse issueAnonymousSession() {
+    public AnonymousSessionResponse issueAnonymousSession(String clientIp) {
         long current = anonymousSessionRepository.count() + 1;
         int index = (int) ((current - 1) % NOUNS.size());
         String adjective = ADJECTIVES.get(index);
         String noun = NOUNS.get(index);
-        String displayName = adjective + " " + noun + "_192.168";
+        String ipSuffix = ClientIpResolver.toDisplaySuffix(clientIp);
+        String displayName = adjective + " " + noun + "_" + ipSuffix;
         String token = "anon-token-" + current + "-" + ADJECTIVE_KEYS.get(index) + "-" + NOUN_KEYS.get(index)
                 + "-" + UUID.randomUUID().toString().substring(0, 8);
 

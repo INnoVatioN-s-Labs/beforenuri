@@ -28,11 +28,11 @@ class SessionServiceUnitTest {
         when(anonymousSessionRepository.save(any(AnonymousSession.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        AnonymousSessionResponse response = sessionService.issueAnonymousSession();
+        AnonymousSessionResponse response = sessionService.issueAnonymousSession("203.0.113.42");
 
         assertNotNull(response.sessionToken());
         assertTrue(response.sessionToken().startsWith("anon-token-1-honorable-panty-"));
-        assertEquals("명예로운 팬티_192.168", response.displayName());
+        assertEquals("명예로운 팬티_203.0", response.displayName());
         verify(anonymousSessionRepository).save(any(AnonymousSession.class));
     }
 
@@ -42,9 +42,9 @@ class SessionServiceUnitTest {
         when(anonymousSessionRepository.save(any(AnonymousSession.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        AnonymousSessionResponse response = sessionService.issueAnonymousSession();
+        AnonymousSessionResponse response = sessionService.issueAnonymousSession("121.156.78.9");
 
         assertTrue(response.sessionToken().startsWith("anon-token-3-quiet-modem-"));
-        assertEquals("조용한 모뎀_192.168", response.displayName());
+        assertEquals("조용한 모뎀_121.156", response.displayName());
     }
 }
