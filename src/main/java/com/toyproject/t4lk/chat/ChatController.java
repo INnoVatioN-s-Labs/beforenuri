@@ -35,7 +35,7 @@ public class ChatController {
     @GetMapping
     @Operation(
             summary = "채팅방 메시지 목록 조회",
-            description = "선택한 채팅방의 최근 메시지 목록을 조회합니다. 현재는 JPA 엔티티로 저장된 데이터를 반환합니다."
+            description = "입장 직전 흐름 파악을 위해 가장 최근 4개의 메시지만 조회합니다. 이후 대화는 WebSocket 실시간 스트림으로 수신합니다."
     )
     @ApiResponse(
             responseCode = "200",

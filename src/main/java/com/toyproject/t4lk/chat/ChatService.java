@@ -1,5 +1,7 @@
 package com.toyproject.t4lk.chat;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.toyproject.t4lk.room.RoomService;
@@ -18,8 +20,11 @@ public class ChatService {
 
     public List<ChatMessageResponse> getMessages(Long roomId) {
         roomService.validateRoomExists(roomId);
-        return chatMessageRepository.findAllByRoomIdAndDeletedFalseOrderByCreatedAtAsc(roomId)
-                .stream()
+        List<ChatMessage> recent = new ArrayList<>(
+                chatMessageRepository.findTop4ByRoomIdAndDeletedFalseOrderByCreatedAtDesc(roomId)
+        );
+        Collections.reverse(recent);
+        return recent.stream()
                 .map(this::toResponse)
                 .toList();
     }

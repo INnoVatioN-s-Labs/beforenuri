@@ -35,10 +35,10 @@ class ChatServiceUnitTest {
     @Test
     void getMessagesMapsRepositoryResults() {
         Room room = room(1L, 1, "자유 대화실");
-        ChatMessage first = message("100", room.getId(), "명예로운 팬티_192.168", ChatMessageType.CHAT, "안녕하세요.");
+        ChatMessage first = message("100", room.getId(), "명예로운 팬티_203.0", ChatMessageType.CHAT, "안녕하세요.");
         ChatMessage second = message("101", room.getId(), "시스템", ChatMessageType.SYSTEM, "공지입니다.");
-        when(chatMessageRepository.findAllByRoomIdAndDeletedFalseOrderByCreatedAtAsc(1L))
-                .thenReturn(List.of(first, second));
+        when(chatMessageRepository.findTop4ByRoomIdAndDeletedFalseOrderByCreatedAtDesc(1L))
+                .thenReturn(List.of(second, first));
 
         List<ChatMessageResponse> messages = chatService.getMessages(1L);
 

@@ -28,17 +28,17 @@ class SessionServiceTest {
 
     @Test
     void issueAnonymousSessionPersistsSession() {
-        var response = sessionService.issueAnonymousSession();
+        var response = sessionService.issueAnonymousSession("203.0.113.42");
 
         assertNotNull(response.sessionToken());
         assertTrue(response.sessionToken().startsWith("anon-token-"));
-        assertTrue(response.displayName().contains("_192.168"));
+        assertTrue(response.displayName().contains("_203.0"));
         assertEquals(1, anonymousSessionRepository.count());
     }
 
     @Test
     void persistedSessionInheritsBaseEntityFields() {
-        sessionService.issueAnonymousSession();
+        sessionService.issueAnonymousSession("203.0.113.42");
         AnonymousSession savedSession = anonymousSessionRepository.findAll().get(0);
 
         assertNotNull(savedSession.getCreatedAt());

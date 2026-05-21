@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +34,7 @@ public class SessionController {
                     schema = @Schema(implementation = AnonymousSessionResponse.class)
             )
     )
-    public AnonymousSessionResponse issueAnonymousSession() {
-        return sessionService.issueAnonymousSession();
+    public AnonymousSessionResponse issueAnonymousSession(HttpServletRequest request) {
+        return sessionService.issueAnonymousSession(ClientIpResolver.resolveClientIp(request));
     }
 }

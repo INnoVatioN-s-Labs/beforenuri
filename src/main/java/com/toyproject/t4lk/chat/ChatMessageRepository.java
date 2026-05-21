@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
 
-    List<ChatMessage> findAllByRoomIdAndDeletedFalseOrderByCreatedAtAsc(Long roomId);
+    List<ChatMessage> findTop4ByRoomIdAndDeletedFalseOrderByCreatedAtDesc(Long roomId);
 
     Optional<ChatMessage> findByIdAndRoomIdAndDeletedFalse(String id, Long roomId);
 }
