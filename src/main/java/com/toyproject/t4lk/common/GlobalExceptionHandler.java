@@ -3,6 +3,7 @@ package com.toyproject.t4lk.common;
 import com.toyproject.t4lk.chat.ChatMessageNotFoundException;
 import com.toyproject.t4lk.room.RoomCodeAlreadyExistsException;
 import com.toyproject.t4lk.room.RoomNotFoundException;
+import com.toyproject.t4lk.session.InvalidSessionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +30,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleRoomCodeConflict(RoomCodeAlreadyExistsException exception) {
         return new ErrorResponse("ROOM_CODE_CONFLICT", exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidSessionException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidSession(InvalidSessionException exception) {
+        return new ErrorResponse("INVALID_SESSION", exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
