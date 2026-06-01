@@ -15,7 +15,7 @@ public record ChatSocketMessageResponse(
         String senderName,
         @Schema(description = "메시지 내용", example = "안녕하세요.")
         String content,
-        @Schema(description = "생성 시각", example = "2026-05-07T21:15:00")
+        @Schema(description = "생성 시각 (UTC, ISO-8601)", example = "2026-05-07T12:15:00Z")
         String createdAt
 ) {
     public static ChatSocketMessageResponse from(ChatMessageResponse response) {

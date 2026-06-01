@@ -14,7 +14,7 @@ public record ChatMessageResponse(
         String messageType,
         @Schema(description = "메시지 내용", example = "안녕하세요. 반갑습니다.")
         String content,
-        @Schema(description = "메시지 생성 시각", example = "2026-05-05T19:30:00")
+        @Schema(description = "메시지 생성 시각 (UTC, ISO-8601)", example = "2026-05-05T10:30:00Z")
         String createdAt
 ) {
 }

@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,8 +114,8 @@ class ChatServiceUnitTest {
     private ChatMessage message(String id, Long roomId, String senderName, ChatMessageType type, String content) {
         ChatMessage chatMessage = new ChatMessage(roomId, senderName, type, content);
         ReflectionTestUtils.setField(chatMessage, "id", id);
-        ReflectionTestUtils.setField(chatMessage, "createdAt", LocalDateTime.of(2026, 5, 7, 19, 30));
-        ReflectionTestUtils.setField(chatMessage, "updatedAt", LocalDateTime.of(2026, 5, 7, 19, 30));
+        ReflectionTestUtils.setField(chatMessage, "createdAt", Instant.parse("2026-05-07T19:30:00Z"));
+        ReflectionTestUtils.setField(chatMessage, "updatedAt", Instant.parse("2026-05-07T19:30:00Z"));
         ReflectionTestUtils.setField(chatMessage, "deleted", false);
         return chatMessage;
     }
