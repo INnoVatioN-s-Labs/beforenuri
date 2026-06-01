@@ -35,4 +35,11 @@ public class SessionService {
         AnonymousSession savedSession = anonymousSessionRepository.save(new AnonymousSession(token, displayName));
         return new AnonymousSessionResponse(savedSession.getSessionToken(), savedSession.getDisplayName());
     }
+
+    @Transactional(readOnly = true)
+    public String resolveDisplayName(String sessionToken) {
+        return anonymousSessionRepository.findBySessionTokenAndIsDeletedFalse(sessionToken)
+                .map(AnonymousSession::getDisplayName)
+                .orElseThrow(InvalidSessionException::new);
+    }
 }
