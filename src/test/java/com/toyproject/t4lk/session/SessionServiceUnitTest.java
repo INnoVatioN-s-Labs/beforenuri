@@ -1,5 +1,8 @@
 package com.toyproject.t4lk.session;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,27 +27,30 @@ class SessionServiceUnitTest {
 
     @Test
     void issueAnonymousSessionBuildsDisplayNameAndToken() {
-        when(anonymousSessionRepository.count()).thenReturn(0L);
         when(anonymousSessionRepository.save(any(AnonymousSession.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         AnonymousSessionResponse response = sessionService.issueAnonymousSession("203.0.113.42");
 
         assertNotNull(response.sessionToken());
-        assertTrue(response.sessionToken().startsWith("anon-token-1-honorable-panty-"));
-        assertEquals("명예로운 팬티_203.0", response.displayName());
+        assertTrue(response.sessionToken().startsWith("anon-token-"),
+                "token: " + response.sessionToken());
+        // 닉네임은 "<형용사> <명사>_<IP 앞 두 옥텟>" 형식이어야 한다.
+        assertTrue(response.displayName().matches("\\S+ \\S+_203\\.0"),
+                "displayName: " + response.displayName());
         verify(anonymousSessionRepository).save(any(AnonymousSession.class));
     }
 
     @Test
-    void issueAnonymousSessionRotatesNicknameByCount() {
-        when(anonymousSessionRepository.count()).thenReturn(2L);
+    void issueAnonymousSessionGeneratesUniqueTokens() {
         when(anonymousSessionRepository.save(any(AnonymousSession.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        AnonymousSessionResponse response = sessionService.issueAnonymousSession("121.156.78.9");
-
-        assertTrue(response.sessionToken().startsWith("anon-token-3-quiet-modem-"));
-        assertEquals("조용한 모뎀_121.156", response.displayName());
+        // count() 기반 채번을 제거했으므로, 동일 IP에서 반복 발급해도 토큰은 매번 유일해야 한다.
+        Set<String> tokens = new HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            tokens.add(sessionService.issueAnonymousSession("10.0.0.1").sessionToken());
+        }
+        assertEquals(1000, tokens.size());
     }
 }
