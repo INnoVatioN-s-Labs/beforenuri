@@ -16,9 +16,10 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Seoul
+  mongodb:
+    uri: ${MONGODB_URI}
   data:
     mongodb:
-      uri: ${MONGODB_URI}
       auto-index-creation: true
 
 app:
