@@ -13,6 +13,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate deployment secrets
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          set -eu
+          for name in DB_URL DB_USERNAME DB_PASSWORD MONGODB_URI; do
+            if [ -z "$(printenv "$name")" ]; then
+              echo "Missing required deployment secret: $name" >&2
+              exit 1
+            fi
+          done
+
       - name: Build deployment image
         run: docker build -t t4lk:latest .
 
@@ -47,14 +62,30 @@ jobs:
           envs: DB_URL,DB_USERNAME,DB_PASSWORD,MONGODB_URI
           script: |
             set -eu
+            : "${DB_URL:?Missing DB_URL}"
+            : "${DB_USERNAME:?Missing DB_USERNAME}"
+            : "${DB_PASSWORD:?Missing DB_PASSWORD}"
+            : "${MONGODB_URI:?Missing MONGODB_URI}"
+
             mkdir -p ~/t4lk-deploy
             cd ~/t4lk-deploy
             docker load -i t4lk-image.tar
-            cat > .env <<EOF
-            DB_URL=${DB_URL}
-            DB_USERNAME=${DB_USERNAME}
-            DB_PASSWORD=${DB_PASSWORD}
-            MONGODB_URI=${MONGODB_URI}
-            EOF
+            {
+              printf 'DB_URL=%s\n' "$DB_URL"
+              printf 'DB_USERNAME=%s\n' "$DB_USERNAME"
+              printf 'DB_PASSWORD=%s\n' "$DB_PASSWORD"
+              printf 'MONGODB_URI=%s\n' "$MONGODB_URI"
+            } > .env
             docker rm -f t4lk || true
             docker run -d --name t4lk --restart unless-stopped --env-file .env -p 8080:8080 t4lk:latest
+            for attempt in $(seq 1 12); do
+              if curl -fsS http://localhost:8080/health >/dev/null; then
+                docker ps --filter name=t4lk
+                exit 0
+              fi
+              sleep 5
+            done
+
+            docker ps -a --filter name=t4lk
+            docker logs --tail=200 t4lk
+            exit 1
