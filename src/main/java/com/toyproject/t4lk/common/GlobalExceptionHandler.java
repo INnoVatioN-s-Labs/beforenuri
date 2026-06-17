@@ -1,6 +1,7 @@
 package com.toyproject.t4lk.common;
 
 import com.toyproject.t4lk.chat.ChatMessageNotFoundException;
+import com.toyproject.t4lk.post.PostNotFoundException;
 import com.toyproject.t4lk.room.RoomCodeAlreadyExistsException;
 import com.toyproject.t4lk.room.RoomNotFoundException;
 import com.toyproject.t4lk.session.InvalidSessionException;
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleChatMessageNotFound(ChatMessageNotFoundException exception) {
         return new ErrorResponse("MESSAGE_NOT_FOUND", exception.getMessage());
+    }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlePostNotFound(PostNotFoundException exception) {
+        return new ErrorResponse("POST_NOT_FOUND", exception.getMessage());
     }
 
     @ExceptionHandler(RoomCodeAlreadyExistsException.class)
