@@ -21,8 +21,18 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+  flyway:
+    enabled: true
+    # 기존 운영 DB(rooms·anonymous_sessions 존재, flyway 이력 없음)에 처음 적용하므로
+    # V1을 baseline으로 마킹해 건너뛰고, 그 이후(V2~) 마이그레이션만 실행한다.
+    baseline-on-migrate: true
+    baseline-version: 1
 
 app:
   allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,https://beforenuri-web.vercel.app}
   seed:
     enabled: ${APP_SEED_ENABLED:true}
+  jwt:
+    secret: ${JWT_SECRET:dev-only-insecure-default-secret-change-in-production-0123456789abcdef}
+    access-token-validity-seconds: ${JWT_ATK_VALIDITY:3600}
+    refresh-token-validity-seconds: ${JWT_RTK_VALIDITY:604800}
