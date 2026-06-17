@@ -9,6 +9,8 @@ import java.util.Optional;
 import com.toyproject.t4lk.chat.ChatMessage;
 import com.toyproject.t4lk.chat.ChatMessageRepository;
 import com.toyproject.t4lk.chat.ChatMessageType;
+import com.toyproject.t4lk.post.Post;
+import com.toyproject.t4lk.post.PostRepository;
 import com.toyproject.t4lk.room.Room;
 import com.toyproject.t4lk.room.RoomRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +44,7 @@ public class DataInitializer {
     ApplicationRunner initializeSampleData(
             RoomRepository roomRepository,
             ChatMessageRepository chatMessageRepository,
+            PostRepository postRepository,
             @Value("${app.seed.enabled:true}") boolean seedEnabled
     ) {
         return args -> {
@@ -51,6 +54,7 @@ public class DataInitializer {
 
             Map<Integer, Room> seededRooms = upsertRooms(roomRepository);
             seedMessagesIfEmpty(chatMessageRepository, seededRooms);
+            seedPostsIfEmpty(postRepository);
         };
     }
 
@@ -95,6 +99,20 @@ public class DataInitializer {
                 new ChatMessage(gameTalkRoomId, "조용한 모뎀_192.168", ChatMessageType.CHAT, "게임 이야기 환영합니다."),
                 new ChatMessage(gameTalkRoomId, "날카로운 사용자_192.168", ChatMessageType.SYSTEM, "매너 있는 대화를 부탁드립니다.")
         ));
+    }
+
+    private void seedPostsIfEmpty(PostRepository postRepository) {
+        if (postRepository.count() > 0) {
+            return;
+        }
+        Post root = postRepository.save(new Post(null, "처음 가입했어요, 잘 부탁드립니다",
+                "초보 사용자_192.168", "PC통신 체험관 너무 좋네요. 자주 들르겠습니다!"));
+        Post reply = postRepository.save(new Post(root.getId(), "Re: 처음 가입했어요",
+                "고참 모뎀_192.168", "환영합니다! 14번 대화실에도 놀러오세요."));
+        postRepository.save(new Post(reply.getId(), "Re: Re: 처음 가입했어요",
+                "조용한 사용자_192.168", "저도 환영합니다 ^_^"));
+        postRepository.save(new Post(null, "오늘 날씨 정말 좋네요",
+                "날카로운 고양이_192.168", "다들 좋은 하루 되세요. 모뎀 접속음 들으니 추억이 새록새록하네요."));
     }
 
     private record RoomSeed(
