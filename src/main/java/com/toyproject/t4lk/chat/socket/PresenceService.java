@@ -1,5 +1,6 @@
 package com.toyproject.t4lk.chat.socket;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,6 +45,15 @@ public class PresenceService {
     public int occupantCount(Long roomId) {
         Map<String, String> sessions = roomSessions.get(roomId);
         return sessions == null ? 0 : sessions.size();
+    }
+
+    /** 현재 방에 접속한 닉네임 목록 (중복 제거, 정렬). */
+    public synchronized List<String> occupants(Long roomId) {
+        Map<String, String> sessions = roomSessions.get(roomId);
+        if (sessions == null) {
+            return List.of();
+        }
+        return sessions.values().stream().distinct().sorted().toList();
     }
 
     public record PresenceChange(Long roomId, String displayName, int occupantCount) {
