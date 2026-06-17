@@ -1,6 +1,6 @@
 package com.toyproject.t4lk.chat.socket;
 
-import com.toyproject.t4lk.session.IdentityResolver;
+import com.toyproject.t4lk.session.SessionService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -19,10 +19,10 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     public static final String SESSION_TOKEN_HEADER = "sessionToken";
 
-    private final IdentityResolver identityResolver;
+    private final SessionService sessionService;
 
-    public StompAuthChannelInterceptor(IdentityResolver identityResolver) {
-        this.identityResolver = identityResolver;
+    public StompAuthChannelInterceptor(SessionService sessionService) {
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader(SESSION_TOKEN_HEADER);
-            String displayName = identityResolver.resolveDisplayName(token);
+            String displayName = sessionService.resolveDisplayName(token);
             accessor.setUser(() -> displayName);
         }
         return message;

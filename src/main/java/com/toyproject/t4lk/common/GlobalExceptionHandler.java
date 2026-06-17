@@ -1,10 +1,6 @@
 package com.toyproject.t4lk.common;
 
 import com.toyproject.t4lk.chat.ChatMessageNotFoundException;
-import com.toyproject.t4lk.member.DuplicateDisplayNameException;
-import com.toyproject.t4lk.member.DuplicateUsernameException;
-import com.toyproject.t4lk.member.InvalidCredentialsException;
-import com.toyproject.t4lk.member.InvalidTokenException;
 import com.toyproject.t4lk.post.PostNotFoundException;
 import com.toyproject.t4lk.room.RoomCodeAlreadyExistsException;
 import com.toyproject.t4lk.room.RoomNotFoundException;
@@ -47,24 +43,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidSession(InvalidSessionException exception) {
         return new ErrorResponse("INVALID_SESSION", exception.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateUsernameException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateUsername(DuplicateUsernameException exception) {
-        return new ErrorResponse("USERNAME_CONFLICT", exception.getMessage());
-    }
-
-    @ExceptionHandler(DuplicateDisplayNameException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateDisplayName(DuplicateDisplayNameException exception) {
-        return new ErrorResponse("DISPLAYNAME_CONFLICT", exception.getMessage());
-    }
-
-    @ExceptionHandler({InvalidCredentialsException.class, InvalidTokenException.class})
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleAuthFailure(RuntimeException exception) {
-        return new ErrorResponse("UNAUTHORIZED", exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

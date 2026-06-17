@@ -3,7 +3,7 @@ package com.toyproject.t4lk.post;
 import java.util.List;
 
 import com.toyproject.t4lk.common.ErrorResponse;
-import com.toyproject.t4lk.session.IdentityResolver;
+import com.toyproject.t4lk.session.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,11 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
     private final PostService postService;
-    private final IdentityResolver identityResolver;
+    private final SessionService sessionService;
 
-    public PostController(PostService postService, IdentityResolver identityResolver) {
+    public PostController(PostService postService, SessionService sessionService) {
         this.postService = postService;
-        this.identityResolver = identityResolver;
+        this.sessionService = sessionService;
     }
 
     @GetMapping
@@ -74,7 +74,7 @@ public class PostController {
             @RequestHeader("sessionToken") String sessionToken,
             @Valid @RequestBody PostUpsertRequest request
     ) {
-        String authorName = identityResolver.resolveDisplayName(sessionToken);
+        String authorName = sessionService.resolveDisplayName(sessionToken);
         return postService.createPost(request, authorName);
     }
 }
