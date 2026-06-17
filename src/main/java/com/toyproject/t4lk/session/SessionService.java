@@ -11,10 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SessionService {
 
-    private static final List<String> ADJECTIVES = List.of("명예로운", "용감한", "조용한", "날카로운");
-    private static final List<String> ADJECTIVE_KEYS = List.of("honorable", "brave", "quiet", "sharp");
-    private static final List<String> NOUNS = List.of("팬티", "고양이", "모뎀", "사용자");
-    private static final List<String> NOUN_KEYS = List.of("panty", "cat", "modem", "user");
+    private static final List<String> ADJECTIVES = List.of(
+            "명예로운", "용감한", "조용한", "날카로운", "쓸쓸한", "엉뚱한", "수상한", "변덕스러운",
+            "우아한", "까칠한", "전설적인", "빛나는", "심오한", "게으른", "부지런한", "레트로한",
+            "8비트", "삐삐치는", "다이얼업하는", "오버클럭된", "버퍼링중인", "접속불량인", "야간모드의", "심야의"
+    );
+    private static final List<String> NOUNS = List.of(
+            "팬티", "고양이", "모뎀", "사용자", "너구리", "두꺼비", "도토리", "햄스터",
+            "감자", "고구마", "플로피디스크", "카세트테이프", "삐삐", "워크맨", "다마고치", "컵라면",
+            "붕어빵", "떡볶이", "통신원", "시삽", "키보드워리어", "네티즌", "오리", "흑우"
+    );
     private final AnonymousSessionRepository anonymousSessionRepository;
 
     public SessionService(AnonymousSessionRepository anonymousSessionRepository) {
@@ -22,15 +28,13 @@ public class SessionService {
     }
 
     public AnonymousSessionResponse issueAnonymousSession(String clientIp) {
-        // count() 기반 순번은 동시 요청 시 같은 값을 읽어(read-modify-write 레이스) 토큰 충돌을
-        // 유발하므로, 닉네임은 랜덤 인덱스로 고르고 토큰 유일성은 전체 UUID로 보장한다.
-        int index = ThreadLocalRandom.current().nextInt(NOUNS.size());
-        String adjective = ADJECTIVES.get(index);
-        String noun = NOUNS.get(index);
+        // 형용사/명사를 독립적으로 랜덤 선택해 조합 다양성을 높인다(24 x 24 = 576가지).
+        // 토큰 유일성은 전체 UUID로 보장한다.
+        int adjectiveIndex = ThreadLocalRandom.current().nextInt(ADJECTIVES.size());
+        int nounIndex = ThreadLocalRandom.current().nextInt(NOUNS.size());
         String ipSuffix = ClientIpResolver.toDisplaySuffix(clientIp);
-        String displayName = adjective + " " + noun + "_" + ipSuffix;
-        String token = "anon-token-" + ADJECTIVE_KEYS.get(index) + "-" + NOUN_KEYS.get(index)
-                + "-" + UUID.randomUUID();
+        String displayName = ADJECTIVES.get(adjectiveIndex) + " " + NOUNS.get(nounIndex) + "_" + ipSuffix;
+        String token = "anon-token-" + UUID.randomUUID();
 
         AnonymousSession savedSession = anonymousSessionRepository.save(new AnonymousSession(token, displayName));
         return new AnonymousSessionResponse(savedSession.getSessionToken(), savedSession.getDisplayName());
