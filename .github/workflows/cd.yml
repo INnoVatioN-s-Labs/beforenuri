@@ -69,6 +69,10 @@ jobs:
 
             mkdir -p ~/t4lk-deploy
             cd ~/t4lk-deploy
+            # 새 이미지 로드 전 디스크 확보: 기존 컨테이너 제거 후 미사용 이미지/캐시 정리
+            # (--volumes 미지정이라 DB 등 볼륨 데이터는 보존)
+            docker rm -f t4lk || true
+            docker system prune -af || true
             docker load -i t4lk-image.tar
             {
               printf 'DB_URL=%s\n' "$DB_URL"
@@ -76,7 +80,6 @@ jobs:
               printf 'DB_PASSWORD=%s\n' "$DB_PASSWORD"
               printf 'MONGODB_URI=%s\n' "$MONGODB_URI"
             } > .env
-            docker rm -f t4lk || true
             docker run -d --name t4lk --restart unless-stopped --env-file .env -p 8080:8080 t4lk:latest
             for attempt in $(seq 1 12); do
               if curl -fsS http://localhost:8080/health >/dev/null; then
