@@ -3,6 +3,8 @@ package com.toyproject.t4lk.chat.socket;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
+
 import com.toyproject.t4lk.chat.socket.PresenceService.PresenceChange;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +39,24 @@ class PresenceServiceUnitTest {
     void leaveUnknownSessionReturnsNull() {
         PresenceService service = new PresenceService();
         assertNull(service.leave("ghost"));
+    }
+
+    @Test
+    void occupantsReturnsSortedDistinctNames() {
+        PresenceService service = new PresenceService();
+        service.enter(1L, "s1", "유저B");
+        service.enter(1L, "s2", "유저A");
+        service.enter(1L, "s3", "유저A"); // 같은 닉네임 중복 세션
+
+        List<String> occupants = service.occupants(1L);
+
+        assertEquals(List.of("유저A", "유저B"), occupants);
+    }
+
+    @Test
+    void occupantsEmptyForUnknownRoom() {
+        PresenceService service = new PresenceService();
+        assertEquals(List.of(), service.occupants(999L));
     }
 
     @Test
